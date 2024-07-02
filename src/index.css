@@ -11,3 +11,22 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.balancePrice {
+  margin: 1%;
+  font-size: 24px;
+  color: #6495ED;
+  border-bottom: 2px solid;
+  width: fit-content
+}
+.clear {
+  font-size: 20px;
+  color: #6495ED;
+  margin-left: 32px;
+  display: inline;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.divider {
+  border-top: 3px solid rgb(218, 93, 93);
+}
