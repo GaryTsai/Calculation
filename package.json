@@ -2,6 +2,7 @@
   "name": "calculation",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://githubName.github.io/calculation/",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -11,6 +12,7 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "antd": "^5.18.3",
+    "gh-pages": "^6.1.1",
     "i18next": "^23.11.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -23,7 +25,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
