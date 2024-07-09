@@ -14,8 +14,6 @@ code {
 
 .balancePrice {
   margin: 1%;
-  font-size: 24px;
-  color: #6495ED;
   border-bottom: 2px solid;
   width: fit-content
 }

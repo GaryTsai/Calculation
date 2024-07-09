@@ -5,7 +5,9 @@
 	"numberOfSheets": "Number of sheets",
     "averagePrice": "Average Price",
 	"clear": "Clear",
-	"clearAll": "ClearAll"
+	"clearAll": "ClearAll",
+	"enterStockName": "Enter Stock Name",
+	"OriginalStock": "Original Stock"
 }
 
   

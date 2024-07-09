@@ -5,5 +5,7 @@
 	"numberOfSheets": "張數",
 	"averagePrice": "平均價格",
 	"clear": "清除",
-	"clearAll": "全部清除"
+	"clearAll": "全部清除",
+	"enterStockName": "請輸入該計算股票",
+	"OriginalStock": "原持有股票"
 }
