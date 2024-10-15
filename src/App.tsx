@@ -5,15 +5,18 @@ import DelteTradeIcon from './Components/DeleteTradeIcon';
 import { useTranslation } from 'react-i18next';
 import useRWD from './utils/useRWD';
 import { Button, Layout, Menu, theme, Input} from 'antd';
+import Radio from './Components/Radio';
+import type { RadioChangeEvent } from 'antd';
+import { change_calculation_type } from './redux/actions/index'
+import { useAppSelector, useAppDispatch } from './redux/store'
 
-const { Header, Sider, Content, Footer } = Layout;
+const { Header, Content, Footer } = Layout;
 let serialNumber = 1
 
 const App: React.FC = () => {
-    const {
-      token: { colorBgContainer, borderRadiusLG },
-    } = theme.useToken();
+    const { token: { colorBgContainer, borderRadiusLG },} = theme.useToken();
     const [balancePrice, setBalancePrice] = useState(0);
+    const [balanceTartgetPrice, setBalanceTartgetPrice] = useState(0);
     const [originalStock, setOriginalStock] = useState({
       price: '',
       sheet: ''
@@ -23,7 +26,13 @@ const App: React.FC = () => {
       price: '',
       sheet: ''
     }]);
+    const [targetInfo, setTargetInfo] = useState({
+      targetPrice: '',
+      targetSheet: ''
+    });
+    const dispatch = useAppDispatch();
     const { t } = useTranslation();
+    const  { calculation_type } = useAppSelector(state => state.allInfo);
     const device = useRWD();
     const isMobile = device === 'mobile'
     const titleLable = ['stockBalanceCalculation']
@@ -31,6 +40,7 @@ const App: React.FC = () => {
       key: index + 1,
       label: `${t(titleLable[index])}`,
     }));
+
     const addTrade = () => {
       serialNumber += 1
       setTradeList([...tradeList, {
@@ -48,20 +58,30 @@ const App: React.FC = () => {
     }
 
     const calculateResult = () => {
-      let totalSheet = 0;
-      let totalPrice = 0;
-      const haveOriginalStock = originalStock.price === '' || originalStock.sheet === '' ? false : true
-      let originalTotalStockPrice = 0
-      if(haveOriginalStock){
-        originalTotalStockPrice = parseFloat((parseFloat(originalStock.price) * parseFloat(originalStock.sheet)).toFixed(2))
+      if(calculation_type === 'balanceAveragePrice'){
+        let totalSheet = 0;
+        let totalPrice = 0;
+        const haveOriginalStock = originalStock.price === '' || originalStock.sheet === '' ? false : true
+        let originalTotalStockPrice = 0
+        if(haveOriginalStock){
+          originalTotalStockPrice = parseFloat((parseFloat(originalStock.price) * parseFloat(originalStock.sheet)).toFixed(2))
+        }
+        tradeList.map((trade)=>{
+          totalPrice += parseFloat(trade.price) * parseFloat(trade.sheet) * 1.001425 * 1.004425;
+          totalSheet += parseFloat(trade.sheet);
+          return {}
+        })
+        const balancePrice = haveOriginalStock ? parseFloat(((totalPrice + originalTotalStockPrice) / (totalSheet + parseFloat(originalStock.sheet))).toFixed(2)) : parseFloat((totalPrice / totalSheet).toFixed(2))
+        setBalancePrice(balancePrice)
+      } else {
+        const targetPrice = parseFloat(targetInfo.targetPrice) // 52
+        const targetSheet = parseFloat(targetInfo.targetSheet) // 2
+        const originalStockPrice = parseFloat(originalStock.price) // 53.81
+        const originalStockSheet = parseFloat(originalStock.sheet) // 1
+        const perPrice = (((targetPrice * targetSheet) - (originalStockPrice * originalStockSheet))/ (targetSheet - originalStockSheet) / 1.001425 / 1.004425).toFixed(2)
+
+        setBalanceTartgetPrice(parseFloat(perPrice))
       }
-      tradeList.map((trade)=>{
-        totalPrice += parseFloat(trade.price) * parseFloat(trade.sheet) * 1.001425 * 1.004425;
-        totalSheet += parseFloat(trade.sheet);
-        return {}
-      })
-      const balancePrice = haveOriginalStock ? parseFloat(((totalPrice + originalTotalStockPrice) / (totalSheet + parseFloat(originalStock.sheet))).toFixed(2)) : parseFloat((totalPrice / totalSheet).toFixed(2))
-      setBalancePrice(balancePrice)
     }
 
     const inputPrice = (num: number, priceValue: string): void => {
@@ -70,20 +90,40 @@ const App: React.FC = () => {
       setTradeList([...tradeList])
     }
     const inputSheet = (num: number, sheetValue: string): void => {
-      console.log(num);
       let index = tradeList.findIndex((trade)=> trade.num === num)
       tradeList[index].sheet = sheetValue
       setTradeList([...tradeList])
     }
 
+    const inputTargetPrice = (targetPriceValue: string): void => {
+      console.log(targetPriceValue);
+      setTargetInfo({
+        targetPrice: targetPriceValue,
+        targetSheet: targetInfo.targetSheet
+      })
+    }
+    const inputTargetSheet = (targetSheetValue: string): void => {
+        setTargetInfo({
+          targetPrice: targetInfo.targetPrice,
+          targetSheet: targetSheetValue
+        })
+    }
+
     const clearCalculation = () => {
-      serialNumber = 1
-      setTradeList([{
-        num: serialNumber,
-        price: '',
-        sheet: ''
-      }])
-      setBalancePrice(0)
+      if(calculation_type === 'balanceAveragePrice'){
+        serialNumber = 1
+        setTradeList([{
+          num: serialNumber,
+          price: '',
+          sheet: ''
+        }])
+        setBalancePrice(0)
+      } else {
+        setTargetInfo({
+          targetPrice: '',
+          targetSheet: ''
+        })
+      }
     }
 
     const clearAllCalculation = () => {
@@ -97,8 +137,16 @@ const App: React.FC = () => {
         price: '',
         sheet: ''
       })
+      setTargetInfo({
+        targetPrice: '',
+        targetSheet: ''
+      })
       setBalancePrice(0)
+      setBalanceTartgetPrice(0)
     }
+    const selectedMethod = ({ target: { value } }: RadioChangeEvent) => {
+      dispatch(change_calculation_type(value))
+    };
     const mobileStyleForBalancePrice = {
       display: 'flex',
       justifyContent: 'center',
@@ -106,7 +154,7 @@ const App: React.FC = () => {
       color: 'rgb(231 133 133)'
     }
   return (
-    <Layout>
+      <Layout>
       <Header style={{ display: 'flex', alignItems: 'center' }}>
         <div className="demo-logo" />
         <Menu
@@ -117,7 +165,7 @@ const App: React.FC = () => {
           style={{ flex: 1, minWidth: 0, fontSize: 18 }}
         />
       </Header>
-      <Content style={{ padding: '0 32px' }}>
+      <Content style={{ padding: '0 16px' }}>
         <div
           style={{
             background: colorBgContainer,
@@ -128,18 +176,22 @@ const App: React.FC = () => {
           }}
         >
           <div style={{ display: 'block', width: '100%' }}>
-             <p  style={{ fontSize: '20px' }}>{t('OriginalStock')}</p>
-             <Input placeholder={t('enterStockName')} style={{
-              display: 'block',
-              width: '50%',
-              borderWidth: '0px',
-              borderBottom: '2px solid #b478ed',
-              borderRadius: '0px'
-            }}/>
-             <Input placeholder={t('averagePrice')} style={{
+            <Radio selectedMethod={selectedMethod} calculation_type={calculation_type}/>
+            <p  style={{ fontSize: '20px' }}>{t('OriginalStock')}</p>
+            <div style={{display: 'flex'}}>
+              <Input placeholder={t('enterStockName')} style={{
+                display: 'block',
+                width: '50%',
+                borderWidth: '0px',
+                borderBottom: '2px solid #b478ed',
+                borderRadius: '0px'
+              }}/><p className='notNecessary'>#({t('notNecessary')})</p>
+            </div>
+            <Input placeholder={t('averagePrice')} style={{
             width: isMobile ?  '98%' : '48%',
             margin: '1% 1% 1% 0%'
             }}
+            inputMode="decimal"
             type='number'
             value={originalStock.price}
             onChange={(e)=> setOriginalStock({
@@ -149,8 +201,9 @@ const App: React.FC = () => {
             /> 
             <Input placeholder={t('numberOfSheets')} style={{
               width: isMobile ?  '98%' : '48%',
-              margin: '1% 1%'
+              margin: isMobile ? '1% 0% 1% 0%' : '1% 1%'
             }}
+            inputMode="decimal"
             type='number'
             value={originalStock.sheet}
             onChange={(e)=> setOriginalStock({
@@ -159,7 +212,7 @@ const App: React.FC = () => {
             })}
             />
             <hr className='divider' />
-            {tradeList?.map((trade, index) => {
+            { calculation_type === 'balanceAveragePrice' && tradeList?.map((trade, index) => {
                 const { num, price, sheet } = trade;
                 return <div  key={num} style={{ display: 'flex', width: 'calc(100% - 62px)', alignItems: 'center'}}>
                     <Trade num={num}  listLength={tradeList.length} index={index} price={price} sheet={sheet} inputPrice={inputPrice} inputSheet={inputSheet} addTrade={addTrade} deleteTrade={deleteTrade}/>
@@ -167,14 +220,24 @@ const App: React.FC = () => {
                     {index + 1 === tradeList.length  && isMobile && <AddTradeIcon addTrade={addTrade}/>}
                     </div>;
             })}
+            { calculation_type === 'balanceTargetPrice' && <>
+              <Input placeholder={t('targetPrice')} inputMode="decimal" style={{
+                  width: isMobile ? '98%'　:'48%',
+                  margin: '1% 1% 1% 0%'
+              }} value={targetInfo.targetPrice} type='number' onChange={(e) => inputTargetPrice(e.target.value)}/> 
+              <Input placeholder={t('targetSheet')} inputMode="decimal" style={{
+                  width: isMobile ? '98%'　:'48%',
+                  margin: isMobile ? '1% 0% 1% 0%' : '1% 1%'
+              }} value={targetInfo.targetSheet} type='number'onChange={(e) => inputTargetSheet(e.target.value)}/>
+              </>}
           </div>
-          <Button type="primary" style={{width: isMobile ? '100%' :  'unset', margin: isMobile ?  '1% 0%': 'unset'}} onClick={()=>calculateResult()}>{t('calculation')}</Button>
+          <Button type="primary" style={{width: isMobile ? '98%' :  'unset', margin: isMobile ?  '1% 0%': 'unset'}} onClick={()=>calculateResult()}>{t('calculation')}</Button>
             <span style={{ display:isMobile ? 'flex' : 'unset', justifyContent: isMobile? 'space-around' : 'unset'}}>
               <div className='clear' onClick={clearCalculation}>{t('clear')}</div>
               <div className='clear' onClick={clearAllCalculation}>{t('clearAll')}</div>
             </span>
           <div style={isMobile ? mobileStyleForBalancePrice : {color: 'rgb(231 133 133)', fontSize: '32px'}}>
-            <div className='balancePrice'>{balancePrice}</div>
+            <div className='balancePrice'>{calculation_type === 'balanceTargetPrice' ? balanceTartgetPrice : balancePrice}</div>
           </div>
         </div>
       </Content>
@@ -184,6 +247,7 @@ const App: React.FC = () => {
     </Layout>
   );
 };
+
 
 
 export default App;

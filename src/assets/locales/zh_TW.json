@@ -6,6 +6,11 @@
 	"averagePrice": "平均價格",
 	"clear": "清除",
 	"clearAll": "全部清除",
-	"enterStockName": "請輸入該計算股票",
-	"OriginalStock": "原持有股票"
+	"enterStockName": "請輸入該計算股票名稱或編號",
+	"OriginalStock": "原持有股票",
+	"balanceAveragePrice": "損益平衡平均價格",
+	"balanceTargetPrice": "股票目標價格",
+	"targetPrice": "目標價格",
+	"targetSheet": "目標張數",
+	"notNecessary": "非必要"
 }

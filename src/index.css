@@ -28,3 +28,7 @@ code {
 .divider {
   border-top: 3px solid rgb(218, 93, 93);
 }
+.notNecessary{
+  font-size: 16px;
+  color: black;
+}

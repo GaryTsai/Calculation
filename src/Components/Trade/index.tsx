@@ -25,13 +25,13 @@ const Trade: React.FC<TradeProps> = ({num, listLength, index, price, sheet, inpu
       <>
       <p className='serial-number'>{`${num}:`}</p>
       <div className="tradeStyle" style={{display: isMobile ? 'block' : 'flex'}}>
-        <Input placeholder={t('singlePrice')} style={{
+        <Input placeholder={t('singlePrice')} inputMode="decimal" style={{
           width: isMobile ? 'calc(100% - 34px)'　:'calc(48% - 34px)',
           margin: '1% 1% 1% 0%'
         }} value={price} type='number' onChange={(e) => inputPrice(num, e.target.value)}/> 
-        <Input placeholder={t('numberOfSheets')} style={{
+        <Input placeholder={t('numberOfSheets')} inputMode="decimal" style={{
           width: isMobile ? 'calc(100% - 34px)'　:'calc(48% - 34px)',
-          margin: '1% 1%'
+          margin: isMobile ? '1% 0% 1% 0%' : '1% 1% 1% 0%'
         }} value={sheet} type='number'onChange={(e) => inputSheet(num, e.target.value)}/>
         {index + 1 !== listLength && !isMobile && <DeleteTradeIcon id={num} deleteTrade={deleteTrade}/>}
         {index + 1 === listLength  && !isMobile && <AddTradeIcon addTrade={addTrade}/>}

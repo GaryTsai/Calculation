@@ -7,7 +7,12 @@
 	"clear": "Clear",
 	"clearAll": "ClearAll",
 	"enterStockName": "Enter Stock Name",
-	"OriginalStock": "Original Stock"
+	"OriginalStock": "Original Stock",
+	"balanceAveragePrice": "Balance Average Price",
+	"balanceTargetPrice": "Balance Target Price",
+	"targetPrice": "Target Price",
+	"targetSheet": "Target sheet",
+	"notNecessary": "Not Necessary"
 }
 
   
